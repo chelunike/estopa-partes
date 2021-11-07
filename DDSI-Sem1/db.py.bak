@@ -1,0 +1,57 @@
+
+import pyodbc
+import json
+
+# Driver MyOracle
+CONNECTION_STRING = "DRIVER=ORACLE-PYTHON;DBQ={0}:1521/{1};USER=;{2}PWD={3}"
+
+
+class OracleDB:
+
+    def __init__(self):
+        self.connection = None
+
+    def connect(self, url='localhost', user='admin', passwd='admin', db='database', file=None):
+        if file:
+            with open(file, 'r+') as f:
+                data = json.load(f)
+
+                url = data['url']
+                user = data['user']
+                passwd = data['passwd']
+                db = data[db]
+
+        credentials = CONNECTION_STRING.format(url, user, passwd, db)
+        self.connection = pyodbc.connect(credentials)
+        print(self.connection)
+
+    def close(self):
+        self.connection.close();
+
+
+
+
+
+import cx_Oracle
+import json
+
+
+class OracleDB:
+
+    def __init__(self):
+        self.connection = None
+
+    def connect(self, dsn='localhost/', user='admin', passwd='admin', file=None):
+        if file:
+            with open(file, 'r+') as f:
+                data = json.load(f)
+
+                dsn = data['dsn']
+                user = data['user']
+                passwd = data['passwd']
+
+        self.connection = cx_Oracle.connect(user, passwd, dsn)
+        print(self.connection)
+
+    def close(self):
+        self.connection.close();

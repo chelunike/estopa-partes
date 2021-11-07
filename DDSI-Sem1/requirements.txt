@@ -1,0 +1,8 @@
+
+# Webserver & Templates
+flask
+
+# Database
+pyodbc
+cx_Oracle
+
