@@ -29,5 +29,8 @@ class MySQLDB:
 
         print(self.connection)
 
+    def execute(self):
+        pass
+
     def close(self):
         self.connection.close();
