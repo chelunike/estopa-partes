@@ -29,8 +29,21 @@ class MySQLDB:
 
         print(self.connection)
 
-    def execute(self):
-        pass
+    def execute(self, sql, *args, **kwargs):
+        cursor = self.connection.cursor()
+        cursor.execute(sql, *args, **kwargs)
+        return cursor
+
+    def insert(self, table, values):
+        INSERT_SENTENCE = "insert into {table} values ({values})"
+        str_vals = ''
+        for v in values:
+            str_vals += '?,'
+        cursor = self.execute(INSERT_SENTENCE.format(table=table, values=values), *values)
+        if cursor.rowcount != len(values):
+            print('ERROR')
+        return cursor
+
 
     def close(self):
         self.connection.close();

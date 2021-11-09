@@ -19,4 +19,7 @@ def index(request):
 database = db.MySQLDB()
 database.connect(file='credentials.json')
 
+cursor = database.insert('stock', [1, 2])
 
+for row in cursor.fetchall():
+    print(row)
