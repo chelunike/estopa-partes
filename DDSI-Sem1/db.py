@@ -34,6 +34,11 @@ class MySQLDB:
         cursor.execute(sql, *args, **kwargs)
         return cursor
 
+    def selectAll(self, table):
+        cursor = self.connection.cursor()
+        cursor.execute('select * from ' + table)
+        return cursor
+
     def insert(self, table, values):
         INSERT_SENTENCE = "insert into {table} values ({values})"
         str_vals = ''
@@ -43,7 +48,6 @@ class MySQLDB:
         if cursor.rowcount != len(values):
             print('ERROR')
         return cursor
-
 
     def close(self):
         self.connection.close();
