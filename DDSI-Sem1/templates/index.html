@@ -7,7 +7,7 @@
     <thead class="table-dark">
         <tr>
             {% for col in table.description %}
-                <th>{{ col[0] }}</th>
+            <th>{{ col[0] }}</th>
             {% endfor %}
             {% if title == "Tabla de pedidos" %}
             <th>Detalles de pedido</th>
@@ -17,29 +17,36 @@
     </thead>
     <tbody>
         {% for row in table %}
-          <tr>
-              {% for data in row %}
-              <td>{{ data }}</td>
-              {% endfor %}
-              {% if title == "Tabla de pedidos" %}
-              <td>
-                  <p>
-                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{row[0]}}" aria-expanded="false" aria-controls="collapseExample">
-                      Detalles
+        <tr>
+            {% for data in row %}
+            <td>{{ data }}</td>
+            {% endfor %}
+            {% if title == "Tabla de pedidos" %}
+            <td>
+                <p>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{row[0]}}" aria-expanded="false" aria-controls="collapseExample">
+                        Mostrar
                     </button>
-                    </p>
-              </td>
-              {% endif %}
-              <td>
-                  <a href="edit/stock/{{ row[0] }}"><i class="fas fa-edit fa-lg text-success"></i></a>
-                  <a href="delete/stock/{{ row[0] }}"><i class="fas fa-trash fa-lg text-danger"></i></a>
-              </td>
-          </tr>
-          {% if title == "Tabla de pedidos" %}
-          <tr class="collapse" id="collapse{{row[0]}}">
-                <td colspan="{{(row|length)+2}}">Aqui aparece los detalles del producto</td>
-          </tr>
-          {% endif %}
+                </p>
+            </td>
+            {% endif %}
+            <td>
+                <a href="edit/stock/{{ row[0] }}"><i class="fas fa-edit fa-lg text-success"></i></a>
+                <a href="delete/stock/{{ row[0] }}"><i class="fas fa-trash fa-lg text-danger"></i></a>
+            </td>
+        </tr>
+            {% if title == "Tabla de pedidos" %}
+                {% for row2 in table_detalle %}
+                {% if row2[0] == row[0] %}
+                <tr class="collapse" id="collapse{{row[0]}}">
+                        <td colspan="2">Código del pedido:  {{ row2[0] }}</td>
+                        <td colspan="2">Código del producto:  {{ row2[1] }}</td>
+                        <td colspan="1">Cantidad:  {{ row2[2] }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            {% endif %}
         {% endfor %}
     </tbody>
 </table>

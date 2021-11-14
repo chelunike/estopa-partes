@@ -36,7 +36,8 @@ def index():
 def pedido():
     data = {
         'title': 'Tabla de pedidos',
-        'table': database.selectAll('pedido')
+        'table': database.selectAll('pedido'),
+        'table_detalle':database.selectAll('detalle_pedido').fetchall()
     }
     if 'noty' in session.keys():
         data['noty'] = session['noty']
