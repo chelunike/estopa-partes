@@ -4,6 +4,9 @@
 
 --USE estopa;
 
+-- Disable autocommit
+SET autocommit = 0;
+
 DROP TABLE detalle_pedido;
 DROP TABLE stock;
 DROP TABLE pedido;
