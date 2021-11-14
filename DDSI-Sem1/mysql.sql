@@ -1,8 +1,8 @@
 -- Script to create database
 
-CREATE DATABASE estopaBD;
+CREATE DATABASE estopa;
 
-USE estopaBD;
+USE estopa;
 
 CREATE TABLE stock (
 	Cproducto int PRIMARY KEY AUTO_INCREMENT,
@@ -23,8 +23,7 @@ CREATE TABLE detalle_pedido (
     FOREIGN KEY (Cproducto) REFERENCES stock(Cproducto)
 );
 
+CREATE USER 'estopa'@'%' IDENTIFIED BY 'estopa';
+GRANT ALL PRIVILEGES ON estopa.* 'estopa'@'0.0.0.0' WITH GRANT OPTION;
 
-
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
-GRANT ALL PRIVILEGES ON *.* TO 'admin'@'0.0.0.0' WITH GRANT OPTION;
 FLUSH PRIVILEGES;

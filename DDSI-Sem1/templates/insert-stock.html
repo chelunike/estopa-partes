@@ -6,16 +6,12 @@
 
     <form method="POST" action="" accept-charset="UTF-8">
         <div class="form-group">
-            <label for="Cpedido">ID</label>
-            <input type="number" id="Cpedido" class="form-control" name="Cpedido">
+            <label for="Cproducto">ID</label>
+            <input type="number" id="Cproducto" class="form-control" name="Cproducto" value="{{ Cproducto | default('', True) }}">
         </div>
         <div class="form-group">
-            <label for="Ccliente">Codigo Cliente</label>
-            <input type="number" id="Ccliente" class="form-control" name="Ccliente">
-        </div>
-        <div class="form-group">
-            <label for="FechaPedido">Fecha del pedido</label>
-            <input type="date" id="FechaPedido" class="form-control" name="FechaPedido">
+            <label for="Cantidad">Codigo Cliente</label>
+            <input type="number" id="Cantidad" class="form-control" name="Cantidad" value="{{ Cantidad | default('', True) }}">
         </div>
         <button type="submit" class="btn btn-primary">Enviar</button>
     </form>

@@ -1,4 +1,3 @@
-
 import pyodbc
 import json
 
@@ -6,6 +5,7 @@ import json
 CONNECTION_STRING = "DRIVER=ODBC Driver MySQL;server={0};uid={1};pwd={2};database={3}"
 
 print(pyodbc.drivers())
+
 
 class MySQLDB:
 
@@ -23,16 +23,12 @@ class MySQLDB:
                 db = data['database']
 
         credentials = CONNECTION_STRING.format(url, user, passwd, db)
-        self.connection = pyodbc.connect(credentials)
+        self.connection = pyodbc.connect(credentials, autocommit=True)
         self.connection.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
         self.connection.setencoding(encoding='utf-8')
 
-        print(self.connection)
-
-    def execute(self, sql, *args, **kwargs):
-        cursor = self.connection.cursor()
-        cursor.execute(sql, *args, **kwargs)
-        return cursor
+    def get_cursor(self):
+        return self.connection.cursor()
 
     def selectAll(self, table):
         cursor = self.connection.cursor()
@@ -40,14 +36,16 @@ class MySQLDB:
         return cursor
 
     def insert(self, table, values):
-        INSERT_SENTENCE = "insert into {table} values ({values})"
-        str_vals = ''
-        for v in values:
-            str_vals += '?,'
-        cursor = self.execute(INSERT_SENTENCE.format(table=table, values=values), *values)
-        if cursor.rowcount != len(values):
-            print('ERROR')
-        return cursor
+        INSERT_SENTENCE = "insert into {0} values ( {1} );"
+        str_vals = "?, " * (len(values) - 1) + "?"
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(INSERT_SENTENCE.format(table, str_vals), tuple(values))
+            cursor.close()
+            return True
+        except Exception as e:
+            print('Error: ', e)
+            return False
 
     def close(self):
-        self.connection.close();
+        self.connection.close()
