@@ -7,11 +7,11 @@
     <form method="POST" action="" accept-charset="UTF-8">
         <div class="form-group">
             <label for="Cproducto">ID</label>
-            <input type="number" id="Cproducto" class="form-control" name="Cproducto" value="{{ Cproducto | default('', True) }}">
+            <input type="number" id="Cproducto" min="0" class="form-control" name="Cproducto" value="{{ Cproducto | default('', True) }}">
         </div>
         <div class="form-group">
             <label for="Cantidad">Codigo Cliente</label>
-            <input type="number" id="Cantidad" class="form-control" name="Cantidad" value="{{ Cantidad | default('', True) }}">
+            <input type="number" id="Cantidad" min="0"  class="form-control" name="Cantidad" value="{{ Cantidad | default('', True) }}">
         </div>
         <button type="submit" class="btn btn-primary">Enviar</button>
     </form>
