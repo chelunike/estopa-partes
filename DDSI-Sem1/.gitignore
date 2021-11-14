@@ -150,6 +150,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Windows pip
+myp/
 
 # Credentials File
 credentials.json
