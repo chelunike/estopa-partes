@@ -120,7 +120,7 @@ def insert_detalle_pedido():
                            [request.form['Cpedido'], request.form['Cproducto'], request.form['Cantidad']])
             cursor.execute('UPDATE stock SET Cantidad = Cantidad - ? WHERE Cproducto = ?',
                            [request.form['Cantidad'], request.form['Cproducto']])
-
+            type, msg = ('success', "Pedido modificado correctamente")
         elif request.form['action'] == 'delete':
             cursor.execute('ROLLBACK TO pedido')
             type, msg = ('info', "Detalles del pedido han sido borrados")
