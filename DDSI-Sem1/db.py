@@ -91,5 +91,8 @@ class MySQLDB:
             print('Error: ', e)
             return False
 
+    def set_autocommit(self, auto):
+        self.connection.autocommit = auto
+
     def close(self):
         self.connection.close()
