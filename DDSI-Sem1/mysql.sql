@@ -27,8 +27,8 @@ CREATE TABLE detalle_pedido (
 	Cpedido int NOT NULL,
     Cproducto int NOT NULL,
     Cantidad int NOT NULL,
-    FOREIGN KEY (Cpedido) REFERENCES pedido(Cpedido),
-    FOREIGN KEY (Cproducto) REFERENCES stock(Cproducto)
+    FOREIGN KEY (Cpedido) REFERENCES pedido(Cpedido) ON DELETE CASCADE,
+    FOREIGN KEY (Cproducto) REFERENCES stock(Cproducto) ON DELETE CASCADE
 );
 
 -- Create user & set privileges

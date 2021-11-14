@@ -3,6 +3,7 @@ import json
 
 # Driver MySql Server
 CONNECTION_STRING = "DRIVER=ODBC Driver MySQL;server={0};uid={1};pwd={2};database={3}"
+#CONNECTION_STRING = "DRIVER=MySQL ODBC 8.0 ANSI Driver;server={0};uid={1};pwd={2};database={3}"
 
 print(pyodbc.drivers())
 
