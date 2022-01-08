@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Usuario(models.Model):
-
     nif = models.CharField(max_length=9)
     nombre = models.CharField(max_length=255)
     apellidos = models.CharField(max_length=255)
@@ -12,6 +11,11 @@ class Usuario(models.Model):
     clave = models.CharField(max_length=255)
     tipo = models.IntegerField()
 
+class Comprador(models.Model):
+    idUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+
+class Vendedor(models.Model):
+    idUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)

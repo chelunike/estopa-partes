@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+    <h2>{{ title }}</h2>
+
+    <form method="POST" action="" accept-charset="UTF-8">
+        <div class="form-group">
+            <label for="Cpedido">ID</label>
+            <input type="number" min="0"  id="Cpedido" class="form-control" name="Cpedido">
+        </div>
+        <div class="form-group">
+            <label for="Ccliente">Codigo Cliente</label>
+            <input type="number" min="0"  id="Ccliente" class="form-control" name="Ccliente">
+        </div>
+        <div class="form-group">
+            <label for="FechaPedido">Fecha del pedido</label>
+            <input type="date" min="0"  id="FechaPedido" class="form-control" name="FechaPedido">
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+
+{% endblock %}
