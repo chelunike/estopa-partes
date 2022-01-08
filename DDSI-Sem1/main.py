@@ -77,10 +77,9 @@ def insert_pedido():
             and 'FechaPedido' in request.form.keys():
         try:
             database.set_autocommit(False)
-
             name = str(os.urandom(4).hex())
             transactions[name] = database.get_cursor()
-
+            transactions[name].execute('START TRANSACTION')
             transactions[name].execute('INSERT INTO pedido VALUES (?, ?, ?)',
                                        [request.form['Cpedido'], request.form['Ccliente'], request.form['FechaPedido']])
             transactions[name].execute('SAVEPOINT pedido')
