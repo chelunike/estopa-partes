@@ -5,7 +5,8 @@ import json
 CONNECTION_STRING = "DRIVER=ODBC Driver MySQL;server={0};uid={1};pwd={2};database={3}"
 #CONNECTION_STRING = "DRIVER=MySQL ODBC 8.0 ANSI Driver;server={0};uid={1};pwd={2};database={3}"
 
-print(pyodbc.drivers())
+# List drivers
+#print(pyodbc.drivers())
 
 
 class MySQLDB:
@@ -63,7 +64,7 @@ class MySQLDB:
             print('Error: ', e)
             return False
 
-    def update(self, table,id, data, id_name='id'):
+    def update(self, table, id, data, id_name='id'):
         UPDATE_SENTENCE = 'UPDATE {0} SET {1} WHERE {2}=?'
         str_vals = ''
         values = []
