@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'website'
 ]
 
@@ -70,6 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'estopaparts.wsgi.application'
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -118,8 +120,12 @@ STATIC_URL = '/assets/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "templates/website/assets/",
-    BASE_DIR / "templates/dashboard/assets/"
+    BASE_DIR / "templates/dashboard/assets/",
+    BASE_DIR / "media/"
 ]
+
+MEDIA_ROOT = 'media/'
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

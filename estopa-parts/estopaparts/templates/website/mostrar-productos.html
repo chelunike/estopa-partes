@@ -1,19 +1,49 @@
 {% extends 'website/base.html' %}
 
 {% block body %}
+<main class="container">
+  <select id="mySelect" class="selectpicker" onchange="setNum();">
+    <option value="row-cols-md-2">2</option>
+    <option value="row-cols-md-3">3</option>
+    <option selected value="row-cols-md-4">4</option>
+    <option value="row-cols-md-5">5</option>
+    <option value="row-cols-md-6">6</option>
+  </select>
+  <div id="rowCards"class="row row-cols-1 row-cols-md-4 g-4">
+{% for producto in productos %}
 
-<!--{ % for row in table % }-->
 
-<div class="card" style="width: 18rem;">
-    <img src="assets/img/cat.jpeg" class="card-img-top" alt="">
+
+
+<div class="col">
+  <form action='#' method='POST'>
+    {% csrf_token %}
+    <input type="hidden" id="id" name="id" value="{{producto.id}}"/>
+  <div class="card h-100">
+    <img class="card-img-top" src="assets/{{producto.imagen}}" alt="{{producto.nombre}}">
     <div class="card-body">
-      <h5 class="card-title">pito<i class="fa-solid fa-thumbs-up"></i></h5>
-      <p class="card-text">testo</p>
-      <a href="#" class="btn btn-primary">boton</a>
+      <h5 class="card-title">{{producto.nombre}}</h5>
+      <p class="card-text">{{producto.descripcion}}</p>
+      <p class="card-text">{{producto.cantidad}}</p>
     </div>
+    <div class="card-footer">
+     
+        {% if producto.id in id %}
+          <button type="submit" name="submit" value="borrar" class="btn btn-danger btn-block">Borrar del carrito</button>
+        {% else %}
+          <button type="submit" name="submit" value="añadir" class="btn btn-primary btn-block">Añadir al carrito</button>
+        {% endif %}
+      
+    </div>
+  </div>
+</form>
 </div>
 
-<!--{ % endfor % }-->
+
+{% endfor %}
+
+</div>
 
 
+</main>
 {% endblock %}

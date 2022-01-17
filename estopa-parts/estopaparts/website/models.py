@@ -9,7 +9,7 @@ class Usuario(models.Model):
     apellidos = models.CharField(max_length=255)
     correo = models.EmailField()
     clave = models.CharField(max_length=255)
-    tipo = models.IntegerField()
+    tipo = models.IntegerField() # 0: Administrador, 1:Vendedor, 2: Cliente
 
 class Comprador(models.Model):
     idUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
@@ -22,7 +22,7 @@ class Producto(models.Model):
     descripcion = models.TextField()
     precio = models.FloatField()
     cantidad = models.IntegerField()
-    imagen = models.ImageField()
+    imagen = models.ImageField(upload_to='products', blank=True, null=True)
     oferta = models.FloatField()
     marca = models.CharField(max_length=255)
     vendedor = models.ForeignKey(Usuario, on_delete=models.CASCADE)
