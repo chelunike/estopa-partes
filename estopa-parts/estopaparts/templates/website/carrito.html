@@ -4,7 +4,7 @@
 <main class="container">
   <div class="container">
     <div class="row">
-      <div class="col-12">
+      <div class="col-8">
       <table class="table table-image">
         <thead>
           <tr>
@@ -18,24 +18,42 @@
         </thead>
         <tbody>
           {% for producto in carrito %}
-          <form action='#' method='POST'>
-            {% csrf_token %}
-          <tr>
-            <th scope="row">{{producto.id}}</th>
-            <td class="w-25">
-              <img src="assets/{{producto.imagen}}" class="img-fluid img-thumbnail" alt="{{producto.nombre}}">
-            </td>
-            <td>{{producto.descripcion}}</td>
-            <td>{{producto.nombre}}</td>
-            <td><input type="number" value="1" id="quantity" name="quantity" min="1" max="{{producto.cantidad}}"></td>
-            <td><button type="submit" name="submit" class="btn btn-danger btn-block">Eliminar</button></td>
-          </tr>
-        </form>
+            <form action="{% url 'home' %}" method='POST'>
+                {% csrf_token %}
+              <tr>
+                <th scope="row">{{producto.id}}</th>
+                <td class="w-25">
+                  <img src="assets/{{producto.imagen}}" class="img-fluid img-thumbnail" alt="{{producto.nombre}}">
+                </td>
+                <td>{{producto.descripcion}}</td>
+                <td>{{producto.nombre}}</td>
+                <td><input type="number" value="1" id="quantity" name="quantity" min="1" max="{{producto.cantidad}}"></td>
+                <input type="hidden" id="id" name="id" value="{{producto.id}}"/>
+                <input type="hidden" id="web" name="web" value="{{web}}"/>
+                <td><button type="submit" name="submit" value="borrar" class="btn btn-danger btn-block ">Eliminar</button></td>
+                
+              </tr>
+            </form>
           {% endfor %}
           
         </tbody>
       </table>   
       </div>
+      <div class="col-4">
+        <div class="row">
+          <div class="col-12">
+            <p class="card-text">Precio total: {{total}} €</p>
+          </div>
+          </div>
+          <div class="col-12">
+            <p class="card-text text-danger">Descuento: {{descuento}} €</p>
+          </div>
+          <div class="col-12">
+            <p class="card-text">Precio final:  {{final}}€</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 

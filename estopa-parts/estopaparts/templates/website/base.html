@@ -34,8 +34,12 @@
         <nav class="nav justify-content-center">
             <a class="nav-link" href="/"><i class="fas fa-shopping-bag"></i> Tienda</a>
             <a class="nav-link" href="/carrito"><i class="fas fa-shopping-cart"></i> Carrito</a>
+            {% if 'user' in request.session %}
+            <a class="nav-link" href="/dashboard"><i class="fas fa-sign-in-alt"></i> Panel de control</a>
+            {% else %}
             <a class="nav-link" href="/signup"><i class="fab fa-wpforms"></i> Registrarse</a>
             <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> Acceder</a>
+            {% endif %}
         </nav>
 
         {% block body %}{% endblock %}

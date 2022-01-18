@@ -23,7 +23,11 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('signup/', views.register, name='signup'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('mostrarProductos', views.productos, name='kk'),
+    path('profile/', views.profile, name='profile'),
+    path('products/', views.product_seller, name='products'),
+    path('products/remove/<int:id>', views.product_remove, name='product-remove'),
+    path('products/edit/<int:id>', views.product_edit, name='product-edit'),
+    path('mostrarProductos', views.productos, name='mostrarProductos'),
     path('carrito', views.carrito, name='carrito')
 ]
 

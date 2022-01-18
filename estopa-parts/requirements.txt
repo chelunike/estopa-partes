@@ -1,1 +1,8 @@
+# Django
 django
+
+# Django-extensions
+django-crispy-forms
+
+# For images
+Pillow

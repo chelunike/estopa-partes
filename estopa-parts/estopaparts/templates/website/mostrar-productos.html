@@ -19,21 +19,36 @@
   <form action='#' method='POST'>
     {% csrf_token %}
     <input type="hidden" id="id" name="id" value="{{producto.id}}"/>
+    <input type="hidden" id="web" name="web" value="{{web}}"/>
   <div class="card h-100">
     <img class="card-img-top" src="assets/{{producto.imagen}}" alt="{{producto.nombre}}">
     <div class="card-body">
-      <h5 class="card-title">{{producto.nombre}}</h5>
+      <h4 class="card-title">{{producto.nombre}}</h4>
       <p class="card-text">{{producto.descripcion}}</p>
-      <p class="card-text">{{producto.cantidad}}</p>
+      <p class="card-text">{{producto.oferta}}</p>
+        <hr>
+          <p class="card-text">Restantes: {{producto.cantidad}}</p>
+        
     </div>
     <div class="card-footer">
-     
+      <div class="row">
+      <div class="col-6">
         {% if producto.id in id %}
-          <button type="submit" name="submit" value="borrar" class="btn btn-danger btn-block">Borrar del carrito</button>
+          <button type="submit" name="submit" value="borrar" class="btn btn-danger btn-block ">Borrar</button>
         {% else %}
-          <button type="submit" name="submit" value="añadir" class="btn btn-primary btn-block">Añadir al carrito</button>
+          <button type="submit" name="submit" value="añadir" class="btn btn-primary btn-block">Añadir</button>
         {% endif %}
-      
+      </div>
+        <div class="col-6">
+          {% if producto.getPrecio != producto.precio %}
+          <p class="card-text">Precio: <del>{{ producto.precio }}</del>€</p>
+          <p class="card-text text-danger">Precio: {{ producto.getPrecio }} €</p>
+          {% else %}
+          <p class="card-text">Precio: {{ producto.getPrecio }}€</p>
+          {% endif %}
+          
+        </div>
+      </div>
     </div>
   </div>
 </form>

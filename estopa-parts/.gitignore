@@ -1,0 +1,11 @@
+
+
+# Python Virtual env
+venv/
+
+
+# Database Images
+media/
+
+# Python cache
+__pycache__/

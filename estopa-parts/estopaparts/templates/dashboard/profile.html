@@ -1,0 +1,43 @@
+{% extends 'dashboard/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Datos Personales -->
+        <div class="card card-primary card-outline">
+            <div class="card-body">
+                <h5 class="card-title">Editar Mi Perfil</h5>
+                <hr>
+                <form action="" method="post">
+                        {% csrf_token %}
+
+                        {{ profile_form | crispy }}
+
+                        <button class="btn btn-primary btn-lg btn-block mt-3" type="submit" style="width: 20%; margin-left: 40%;">Guardar</button>
+                </form>
+            
+            </div>
+        </div><!-- /.card -->
+
+        <!-- Contraseña -->
+        <div class="card card-primary card-outline">
+            <div class="card-body">
+                <h5 class="card-title">Editar Contraseña</h5>
+                <hr>
+                <form action="" method="post">
+                        {% csrf_token %}
+
+                        {{ passwd_form | crispy }}
+
+                        <button class="btn btn-primary btn-lg btn-block mt-3" type="submit" style="width: 20%; margin-left: 40%;">Editar</button>
+                </form>
+            
+            </div>
+        </div><!-- /.card -->
+
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
