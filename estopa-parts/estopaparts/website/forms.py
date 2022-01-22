@@ -18,6 +18,9 @@ class ProfileForm(forms.ModelForm):
         fields = ['nif', 'nombre', 'apellidos', 'correo']
 
 
+class EmailForm(forms.Form):
+    correo = forms.EmailField()
+
 class PasswordForm(forms.Form):
     claveAntigua = forms.CharField(label='Contraseña antigua', widget=forms.PasswordInput, max_length=255)
     clave = forms.CharField(label='Nueva Contraseña', widget=forms.PasswordInput, max_length=255)

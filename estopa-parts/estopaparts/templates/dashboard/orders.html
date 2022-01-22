@@ -1,0 +1,176 @@
+{% extends 'dashboard/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Datos Personales -->
+        <div class="card card-primary card-outline">
+
+            <div class="card-header">
+                <h3 class="card-title">Tabla de pedidos</h3>
+            </div>
+              
+            <!-- /.card-header -->
+            <div class="card-body">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-insert">Instertar Producto</button>
+                <table id="pedidos" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha de Compra</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for pedido in pedidos %}
+                        <tr>
+                            <td>{{ pedido.id }}</td>
+                            <td>{{ pedido.fechaCompra | date:'Y-m-d' }}</td>
+                            <td>{{ pedido.cantidad }}</td>
+                            <td>{{ pedido.total }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-pedido-{{ pedido.id }}">Ver Pedido</button>
+                                {% if pedido.max_estado < 1 %}
+                                <a href="/order/remove/{{ pedido.id }}" class="btn btn-danger">Cancelar Pedido</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div id="buttons"></div>
+            </div>
+            <!-- /.card-body -->
+        </div><!-- /.card -->
+    </div>
+</div>
+<!-- /.row -->
+
+
+<!-- Modales de los pedidos -->
+{% for pedido in pedidos %}
+<div class="modal fade" id="modal-pedido-{{ pedido.id }}">
+    <div class="modal-dialog" style="max-width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Lista de Productos del Pedido #{{ pedido.id }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="productos-{{ pedido.id }}" class="table table-bordered table-hover" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Estado</th>
+                            <th>Precio Unitario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for producto in pedido.productos %}
+                        <tr>
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <td>{{ producto.data.id }}</td>
+                                <input type="hidden" name="id" value="{{ producto.id }}">
+                                <td><img src="/assets/{{ producto.data.imagen }}" width="130px" alt="{{ producto.data.nombre }}"></td>
+                                <td>{{ producto.data.nombre  }}</td>
+                                {% if producto.estado == 0 %}
+                                <td><input type="number" name="cantidad" value="{{ producto.cantidad }}"></td>
+                                {% else %}
+                                <td>
+                                    {% if producto.estado == 0 %}
+                                    <input type="number" name="cantidad" value="{{ producto.cantidad }}">
+                                    {% else %}
+                                    {{ producto.cantidad }}
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                                <td>
+                                    {% if producto.estado == 0 %}
+                                    <p class="badge badge-danger"> <i class="far fa-clock"></i> Pendiente
+                                    {% elif producto.estado == 1 %}
+                                    <span class="badge badge-warning">Confirmado</span>
+                                    {% elif producto.estado == 2 %}
+                                    <span class="badge badge-success">Pagado</span>
+                                    {% elif producto.estado == 3 %}
+                                    <span class="badge badge-info">Enviado</span>
+                                    {% else %}
+                                    <span class="badge badge-success">Recibido</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ producto.data.getPrecio }}</td>
+                                <td class="text-center">
+                                    {% if producto.estado == 0 %}
+                                    <button type="submit" class="btn btn-success" >Guardar Cambios</button>
+                                    <a href="/order/{{ pedido.id }}/remove/{{ producto.id }}" class="btn btn-danger mt-1">Borrar</a>
+                                    {% endif %}
+                                </td>
+                            </form>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div id="buttons-{{ pedido.id }}"></div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="reset" class="btn btn-danger" data-dismiss="modal">Volver</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+{% endfor %}
+
+{% endblock %}
+
+
+{% block head %}
+<!-- DataTables -->
+<link rel="stylesheet" href="/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="/assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+{% endblock %}
+
+
+{% block scripts %}
+<!-- DataTables  & Plugins -->
+<script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="/assets/plugins/jszip/jszip.min.js"></script>
+<script src="/assets/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="/assets/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script>
+    $(function () {
+        // Script for main table
+        $("#pedidos").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": true, "paging": true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#buttons');
+
+        {% for pedido in pedidos %}
+        $("#productos-{{ pedido.id }}").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": true, "paging": true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#buttons-{{ pedido.id }}');
+        {% endfor %}
+    });
+</script>
+{% endblock %}

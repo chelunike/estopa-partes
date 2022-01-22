@@ -1,64 +1,147 @@
 {% extends 'website/base.html' %}
 
+
+{% block header %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+<script>
+    var minPrice={{ minPrice|safe }};
+    var maxPrice={{ maxPrice|safe  }};
+
+    console.log(minPrice);
+    console.log(maxPrice);
+    $( "#slider-pocho" ).slider({
+      range: true,
+      min: 0.00,
+      max: maxPrice,
+      values: [ {{ limInf|safe }}, {{ limSup|safe }} ],
+      slide: function( event, ui ) {
+        $( "#amount" ).val( ui.values[ 0 ] + "€ - " + ui.values[ 1 ] +"€");
+        $( "#precioMin" ).val( ui.values[ 0 ]);
+        $( "#precioMax" ).val( ui.values[ 1 ]);
+      }
+    });
+    $( "#amount" ).val(  $( "#slider-pocho" ).slider( "values", 0 ) +"€ - " +
+       $( "#slider-pocho" ).slider( "values", 1 )+"€" );
+    
+    $( "#mySelect" ).selectmenu({
+      change: function( event, data ) {
+        $("#rowCards").removeClass().addClass("row row-cols-1 g-4").addClass(data.item.value);
+      }
+
+    });
+    
+    function setNum() {
+      var e = document.getElementById('mySelect');
+      a = e.options[e.selectedIndex].value;
+      $("#rowCards").removeClass().addClass("row row-cols-1 g-4").addClass(a);
+    }
+
+
+
+  </script>
+  
+{% endblock %}
+
+
 {% block body %}
-<main class="container">
-  <select id="mySelect" class="selectpicker" onchange="setNum();">
+  <div class="row mt-2">
+    <div class="col-2">
+      <hr>
+  <!-- Selector de Columnas-->
+  <label for="mySelect">Columnas</label>
+  <select id="mySelect" name="mySelect" class="selectpicker" onchange="setNum();">
     <option value="row-cols-md-2">2</option>
     <option value="row-cols-md-3">3</option>
     <option selected value="row-cols-md-4">4</option>
     <option value="row-cols-md-5">5</option>
     <option value="row-cols-md-6">6</option>
   </select>
-  <div id="rowCards"class="row row-cols-1 row-cols-md-4 g-4">
-{% for producto in productos %}
+  <hr>
+  
 
+  <p>
+    <label for="amount">Price range:</label>
+    <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+  </p>
+  <div id="slider-pocho"></div>
 
-
-
-<div class="col">
-  <form action='#' method='POST'>
+  <form action="{% url 'mostrarProductos' %}" method='POST' class="mt-3">
     {% csrf_token %}
-    <input type="hidden" id="id" name="id" value="{{producto.id}}"/>
-    <input type="hidden" id="web" name="web" value="{{web}}"/>
-  <div class="card h-100">
-    <img class="card-img-top" src="assets/{{producto.imagen}}" alt="{{producto.nombre}}">
-    <div class="card-body">
-      <h4 class="card-title">{{producto.nombre}}</h4>
-      <p class="card-text">{{producto.descripcion}}</p>
-      <p class="card-text">{{producto.oferta}}</p>
-        <hr>
-          <p class="card-text">Restantes: {{producto.cantidad}}</p>
-        
-    </div>
-    <div class="card-footer">
-      <div class="row">
-      <div class="col-6">
-        {% if producto.id in id %}
-          <button type="submit" name="submit" value="borrar" class="btn btn-danger btn-block ">Borrar</button>
-        {% else %}
-          <button type="submit" name="submit" value="añadir" class="btn btn-primary btn-block">Añadir</button>
-        {% endif %}
-      </div>
-        <div class="col-6">
-          {% if producto.getPrecio != producto.precio %}
-          <p class="card-text">Precio: <del>{{ producto.precio }}</del>€</p>
-          <p class="card-text text-danger">Precio: {{ producto.getPrecio }} €</p>
-          {% else %}
-          <p class="card-text">Precio: {{ producto.getPrecio }}€</p>
-          {% endif %}
-          
-        </div>
-      </div>
-    </div>
-  </div>
-</form>
-</div>
+    <input type="hidden" id="precioMin" name="precioMin" value="{{ minPrice }}"/>
+    <input type="hidden" id="precioMax" name="precioMax" value="{{ maxPrice }}"/>
+    <button class="btn btn-info btn-lg btn-primary" type="submit" name="submit" value="filtrarPrecio">Filtrar por precio</button>
+  </form>
+  <form action="{% url 'mostrarProductos' %}" method='POST' class="mt-3">
+    {% csrf_token %}
+    <label for="selectMarcas">Columnas</label>
+    <select id="selectMarcas" name="selectMarcas" class="selectpicker" >
+      {% for m in marcas %}
+        <option value="{{ m }}">{{ m }}</option>
+      {% endfor %}
+    </select>
+    
+    <button class="btn btn-info btn-lg btn-primary" type="submit" name="submit" value="filtrarPrecio">Filtrar por marca</button>
+  </form>
 
 
-{% endfor %}
+<hr>
 
 </div>
+<div class="col-10">
+  <div id="rowCards"class="row row-cols-1 row-cols-md-4 g-4">
+  {% for producto in productos %}
+    <div class="col">
+      <form action='#' method='POST'>
+        {% csrf_token %}
+        <input type="hidden" id="id" name="id" value="{{producto.id}}"/>
+        <input type="hidden" id="web" name="web" value="{{web}}"/>
+        <div class="card h-100">
+          <!-- Enlace a vista producto -->
+          <a class="nav-link" style="color:black;" href="/product/{{ producto.id }}">
+            <img class="card-img-top" src="assets/{{producto.imagen}}" alt="{{producto.nombre}}">
+            <!-- Datos Producto -->
+            <div class="card-body">
+              <h4 class="card-title">{{producto.nombre}}</h4>
+              <p class="card-text">{{producto.descripcion}}</p>
+              <p class="card-text">{{producto.oferta}}</p>
+              <hr>
+              <p class="card-text">Restantes: {{producto.cantidad}}</p>  
+            </div>
+          </a>
+          <!-- Footer card -->
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-6">
+              {% if producto.id in id %}
+                <button type="submit" name="submit" value="borrar" class="btn btn-danger btn-block ">Borrar</button>
+              {% else %}
+                <button type="submit" name="submit" value="añadir" class="btn btn-primary btn-block">Añadir</button>
+              {% endif %}
+              </div>
+              <!-- Precios del producto -->
+              <div class="col-6">
+              {% if producto.getPrecio != producto.precio %}
+              <p class="card-text">Precio: <del>{{ producto.precio }}</del>€</p>
+              <p class="card-text text-danger">Precio: {{ producto.getPrecio }} €</p>
+              {% else %}
+              <p class="card-text">Precio: {{ producto.getPrecio }}€</p>
+              {% endif %}
+              </div>
+            </div>
+          </div>
+        </div><!-- End Card -->
+      </form>
+    </div><!-- End Col -->
+  {% endfor %}
 
+</div>
+</div>
+</div>
 
-</main>
 {% endblock %}

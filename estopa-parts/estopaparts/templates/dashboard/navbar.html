@@ -167,6 +167,27 @@
                 <p>Mis Productos</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="/my-products" class="nav-link {% if request.path == '/my-products/' %}active{% endif %}">
+                <i class="nav-icon fas fa-box-open"></i>
+                <p>Productos Vendidos</p>
+            </a>
+        </li>
+        {% endif %}
+
+        {% if user.tipo == 2 %}
+        <li class="nav-item">
+            <a href="/orders" class="nav-link {% if request.path == '/orders/' %}active{% endif %}">
+                <i class="nav-icon fas fa-box-open"></i>
+                <p>Mis Pedidos</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/my-products" class="nav-link {% if request.path == '/my-products/' %}active{% endif %}">
+                <i class="nav-icon fas fa-box-open"></i>
+                <p>Mis Productos</p>
+            </a>
+        </li>
         {% endif %}
 
         <li class="nav-item">

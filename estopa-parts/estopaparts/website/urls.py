@@ -24,11 +24,23 @@ urlpatterns = [
     path('signup/', views.register, name='signup'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile/', views.profile, name='profile'),
+    # Listado de productos
+    path('my-products/', views.products_list, name='my-products'),
     path('products/', views.product_seller, name='products'),
     path('products/remove/<int:id>', views.product_remove, name='product-remove'),
     path('products/edit/<int:id>', views.product_edit, name='product-edit'),
+    path('product/<int:id>', views.product_single, name='product'),
+
+    # Listado de pedidos
+    path('orders/', views.orders, name='orders'),
+    path('order/remove/<int:id>', views.order_remove, name='order-remove'),
+    path('order/<int:order_id>/remove/<int:product_id>', views.order_remove_product, name='order-remove-product'),
+    
+    # Vistas del wesite
     path('mostrarProductos', views.productos, name='mostrarProductos'),
-    path('carrito', views.carrito, name='carrito')
+    path('carrito', views.carrito, name='carrito'),
+    path('tramitar', views.tramitar, name='tramitar'),
+    path('compra', views.compra, name='compra')
 ]
 
 

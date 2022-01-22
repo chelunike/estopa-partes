@@ -9,12 +9,11 @@
         <div class="card card-primary card-outline">
 
             <div class="card-header">
-                <h3 class="card-title">Tabla de Productos</h3>
+                <h3 class="card-title">{{ title }}</h3>
             </div>
               
             <!-- /.card-header -->
             <div class="card-body">
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-insert">Instertar Producto</button>
                 <table id="productos" class="table table-bordered table-hover">
                     <thead>
                         <tr>
@@ -26,7 +25,6 @@
                             <th>Stock</th>
                             <th>Oferta</th>
                             <th>Marca</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,10 +38,6 @@
                             <td>{{ producto.cantidad }}</td>
                             <td>{{ producto.oferta }}</td>
                             <td>{{ producto.marca }}</td>
-                            <td class="text-center">
-                                <a href="/products/edit/{{ producto.id }}" class="btn btn-primary">Editar</a>
-                                <a href="/products/remove/{{ producto.id }}" class="btn btn-danger mt-1">Eliminar</a>
-                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -57,32 +51,6 @@
     </div>
 </div>
 <!-- /.row -->
-
-<div class="modal fade" id="modal-insert">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form actioin="" method="post" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h4 class="modal-title">Insertar Nuevo Producto</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    {% csrf_token %}
-
-                    {{ product_form | crispy }}
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Añadir</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
 
 {% endblock %}
 

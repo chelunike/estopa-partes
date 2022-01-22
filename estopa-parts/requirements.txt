@@ -6,3 +6,9 @@ django-crispy-forms
 
 # For images
 Pillow
+
+
+# Populator
+requests
+beautifulsoup4
+Faker

@@ -37,6 +37,22 @@
             </div>
         </div><!-- /.card -->
 
+         <!-- Darse de Baja -->
+         <div class="card card-primary card-outline">
+            <div class="card-body">
+                <h5 class="card-title">Darse de Baja</h5>
+                <hr>
+                <form action="" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="borrar">
+                        {{ quit_form | crispy }}
+
+                        <button class="btn btn-danger btn-lg btn-block mt-3" type="submit" style="width: 20%; margin-left: 40%;">Darse de Baja</button>
+                </form>
+            
+            </div>
+        </div><!-- /.card -->
+
     </div>
 </div>
 <!-- /.row -->

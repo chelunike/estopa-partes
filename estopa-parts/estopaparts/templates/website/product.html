@@ -1,0 +1,37 @@
+
+{% extends 'website/base.html' %}
+
+{% block body %}
+
+<div class="row d-flex justify-content-center align-items-center mt-5">
+    <div class="col-md-6">
+        <img src="/assets/{{ producto.imagen }}" class="img-fluid img-thumbnail mx-auto d-block" alt="{{ producto.nombre }}" style="width: 530px;">
+    </div>
+
+    <div class="col-md-6">
+        <h3 class="mb-5">{{ producto.nombre }}</h3>
+        <hr>
+        <p>{{ producto.descripcion }}</p>
+        <p><strong>Marca: </strong>{{ producto.marca }}</p>
+        <p><strong>Vendido por: </strong>{{ producto.vendedor }}</p>
+        
+        {% if producto.getPrecio != producto.precio %}
+        <p class="card-text"><strong>Precio:</strong> <del>{{ producto.precio }}</del>€</p>
+        <p class="card-text text-danger">Precio: {{ producto.getPrecio }}€</p>
+        {% else %}
+        <p class="card-text"><strong>Precio:</strong> {{ producto.getPrecio }}€</p>
+        {% endif %}
+
+        <form action='#' method='POST'>
+            {% csrf_token %}
+            <input type="hidden" id="id" name="id" value="{{ producto.id }}"/>
+            {% if producto.id in ids %}
+            <button class="btn btn-danger btn-lg btn-block" type="submit" name="action" value="delete">Quitar del carrito</button>
+            {% else %}
+            <button class="btn btn-info btn-lg btn-block" type="submit" name="action" value="insert">Añadir al carrito</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% endblock %}
