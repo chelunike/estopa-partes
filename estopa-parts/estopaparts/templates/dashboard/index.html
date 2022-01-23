@@ -1,5 +1,17 @@
 {% extends 'dashboard/base.html' %}
+
+{% block head%}
+
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+
+{% endblock %}
+
+
 {% block scripts %}
+
+
+
+{% if user.tipo == 0 %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js" integrity="sha256-Y26AMvaIfrZ1EQU49pf6H4QzVTrOI8m9wQYKkftBt4s=" crossorigin="anonymous"></script>
 <script>
     const ctx = document.getElementById('ventasMes').getContext('2d'); 
@@ -34,7 +46,7 @@
                     'rgba(186,0,255, 1)',
                     'rgba(0,255,0, 1)',
                     'rgba(59, 187, 130, 1)',
-                    'rgba(91, 148, 136, 1)',    
+                    'rgba(91, 148, 136, 1)', 
                     'rgba(111, 153, 27, 1)',
                     'rgba(91, 42, 37, 1)'
                 ],
@@ -43,24 +55,207 @@
         },
         
     });
-    </script>
+</script>
+
+{% elif user.tipo == 1 %}
+
+<!-- DataTables  & Plugins -->
+<script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="/assets/plugins/jszip/jszip.min.js"></script>
+<script src="/assets/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="/assets/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script>
+    $(function () {
+        // Script for main table
+        $("#pedidos").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": true, "paging": true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#buttons');
+    });
+</script>
+
+
+{% endif %}
+
 {% endblock %}
+
+
 {% block content %}
 
 <div class="row">
     
+    {% if user.tipo == 2 %}
+    <!-- Small boxes (Stat box) -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-info">
+        <div class="inner">
+            <h3>{{ num_productos }}</h3>
+            <p>Productos Comprados</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-bag"></i>
+        </div>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success">
+        <div class="inner">
+            <h3>{{ num_ofertas }}</h3>
+
+            <p>Nº de Ofertas</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-stats-bars"></i>
+        </div>
+        <a href="/" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
+
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+        <div class="inner">
+            <h3>{{ num_pedidos }}</h3>
+
+            <p>Nº de Pedidos</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-pie-graph"></i>
+        </div>
+        <a href="/orders" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
+    {% endif %}
+
+
+    {% if user.tipo == 1 %}
     <div class="col-md-12">
         <!-- Lista de productos por atender -->
         <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title">Pedidos pendientes</h5>
+            </div>
             <div class="card-body">
-            <h5 class="card-title">Pedidos</h5>
-    
-            
+                <table id="pedidos" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos %}
+                        <tr>
+                            <td>{{ pedido.idProducto.id }}</td>
+                            <td>{{ pedido.idPedido.idComprador.nombre }}</td>
+                            <td>{{ pedido.idPedido.fechaCompra }}</td>
+                            <td>{{ pedido.get_precio }}</td>
+                            <td>
+                                {% if pedido.estado == 0 %}
+                                    <span class="badge badge-danger"> <i class="far fa-clock"></i> Pendiente</span>
+                                    {% elif pedido.estado == 1 %}
+                                    <span class="badge badge-warning">Confirmado</span>
+                                    {% elif pedido.estado == 2 %}
+                                    <span class="badge badge-success">Pagado</span>
+                                    {% elif pedido.estado == 3 %}
+                                    <span class="badge badge-info">Enviado</span>
+                                    {% else %}
+                                    <span class="badge badge-success">Recibido</span>
+                                    {% endif %}
+                            </td>
+                            <td>
+                                <a href="/products/orders/" class="btn btn-primary btn-sm">Ver</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div id="buttons"></div>
             </div>
         </div><!-- /.card -->
 
     </div>
+    {% endif %}
 
+    {% if user.tipo == 0 %}
+
+    <!-- Small boxes (Stat box) -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-info">
+        <div class="inner">
+            <h3>{{ num_pedidos }}</h3>
+            <p>Nº de Pedidos</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-bag"></i>
+        </div>
+        <a href="/products/orders" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success">
+        <div class="inner">
+            <h3>{{ num_productos }}</h3>
+
+            <p>Nº de Productos</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-stats-bars"></i>
+        </div>
+        <a href="/products" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+        <div class="inner">
+            <h3>{{ num_users }}</h3>
+
+            <p>Número de usuarios</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-person-add"></i>
+        </div>
+        <a href="/usuarios" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+        <div class="inner">
+            <h3>{{ num_comentarios }}</h3>
+
+            <p>Nº de Comentarios</p>
+        </div>
+        <div class="icon">
+            <i class="ion ion-pie-graph"></i>
+        </div>
+        <a href="/valoraciones" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <!-- ./col -->
 
     <div class="col-lg-6">
 
@@ -83,32 +278,32 @@
     </div>
     <!-- /.col-md-6 -->
     <div class="col-lg-6">
-    
-    <div class="card">
-        <div class="card-header">
-        <h5 class="m-0">Seleccionar año</h5>
+        <div class="card">
+            <div class="card-header">
+            <h5 class="m-0">Seleccionar año</h5>
+            </div>
+            <div class="card-body">
+                <form action="" method='POST' class="mt-3">
+                    {% csrf_token %}
+                    <select id="year" name="year" class="selectpicker" >
+                        {% for y in years %}
+                            {% if y == year %}
+                                <option selected value="{{y}}">{{y}}</option>
+                            {% else %}
+                                <option value="{{y}}">{{y}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-primary" type="submit" name="submit" value="cambiarYear">Cambiar año</button>
+                </form>
+                
+            </div>
         </div>
-        <div class="card-body">
-            <form action="" method='POST' class="mt-3">
-                {% csrf_token %}
-                <select id="year" name="year" class="selectpicker" >
-                    {% for y in years %}
-                        {% if y == year %}
-                            <option selected value="{{y}}">{{y}}</option>
-                        {% else %}
-                            <option selected value="{{y}}">{{y}}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-                <button class="btn btn-primary" type="submit" name="submit" value="cambiarYear">Cambiar año</button>
-              </form>
-            
-        </div>
-    </div>
-
-    
     </div>
     <!-- /.col-md-6 -->
+    {% endif %}
+
+
 </div>
 <!-- /.row -->
 {% endblock %}

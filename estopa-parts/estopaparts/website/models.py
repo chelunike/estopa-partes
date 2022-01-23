@@ -9,7 +9,6 @@ class Usuario(models.Model):
         (1, 'Vendedor'),
         (2, 'Comprador'),
     ]
-    
     nif = models.CharField(max_length=9)
     nombre = models.CharField(max_length=255)
     apellidos = models.CharField(max_length=255)
@@ -17,10 +16,9 @@ class Usuario(models.Model):
     clave = models.CharField(max_length=255)
     imagen = models.ImageField(upload_to='users', null=True)
     tipo = models.IntegerField(choices=TIPOS) # 0: Administrador, 1:Vendedor, 2: Cliente
-
+    
     def __str__(self):
         return self.nombre + ' ' + self.apellidos
-
     def getTipo(self):
         return self.TIPOS[self.tipo][1]
 

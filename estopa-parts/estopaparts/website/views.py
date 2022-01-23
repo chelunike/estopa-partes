@@ -264,28 +264,49 @@ def tramitar(request):
 @check_login(2)
 @session
 def dashboard(request):
-    valores=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    year=2022
-    if request.method == 'POST':
-         if request.POST['submit'] == 'cambiarYear':
-            year=request.POST['year']
-    for p in Pedido.objects.filter(fechaCompra__year=year):
-        valores[p.getMes()-1] += 1
-    
-    # Obtener los años de los Pedidos
-    years = []
-    for p in Pedido.objects.all():
-        if p.fechaCompra.year not in years:
-            years.append(p.fechaCompra.year)
-    
+    year = 2022
     data = {
         'title': 'Panel de control',
-        'meses': ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio','Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-        'valores': valores,
-        'years':years,
         'noty': request.session['noty'],
-        'user': request.session['user']
+        'user': request.session['user'],
+        'year':year
     }
+
+    valores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    
+    if request.method == 'POST' and 'submit' in request.POST:
+         if request.POST['submit'] == 'cambiarYear':
+            year = request.POST['year']
+
+    if request.session['user']['tipo'] == 0:
+        for p in Pedido.objects.filter(fechaCompra__year=year):
+            valores[p.getMes()-1] += 1
+    
+        # Obtener los años de los Pedidos
+        years = []
+        for p in Pedido.objects.all():
+            if p.fechaCompra.year not in years:
+                years.append(p.fechaCompra.year)
+            
+        data['years'] = years
+        data['valores'] = valores
+        data['meses'] = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio','Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        data['num_pedidos'] = ProductosPedido.objects.all().count()
+        data['num_productos'] = Producto.objects.all().count()
+        data['num_comentarios'] = Valoracion.objects.all().count()
+        data['num_users'] = Usuario.objects.all().count()
+
+    elif request.session['user']['tipo'] == 1:
+        products = ProductosPedido.objects.raw('SELECT * FROM website_productospedido as pp, website_producto as prod '+
+        'WHERE pp.estado < 3 and pp.idProducto_id = prod.id and prod.vendedor_id  = %s;', [request.session['user']['id']])
+        data['pedidos'] = products
+    
+    elif request.session['user']['tipo'] == 2:
+        data['num_pedidos'] = Pedido.objects.filter(idComprador_id=request.session['user']['id']).count()
+        data['num_ofertas'] = Producto.objects.filter(oferta__gt=0).count()
+        data['num_productos'] = len(Producto.objects.raw('SELECT * FROM website_producto as prod, website_pedido as ped, website_productospedido as pp '+
+            'WHERE prod.id = pp.idProducto_id and ped.id = pp.idPedido_id and ped.idComprador_id = %s;', [request.session['user']['id']]))
+
     return render(request, 'dashboard/index.html', data)
 
 @check_login(2)
