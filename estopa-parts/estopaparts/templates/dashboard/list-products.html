@@ -22,9 +22,14 @@
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Precio</th>
+                            {% if user.tipo == 1 %}
                             <th>Stock</th>
+                            {% endif %}
                             <th>Oferta</th>
                             <th>Marca</th>
+                            {% if user.tipo == 2 %}
+                            <th>Comentario</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -35,9 +40,20 @@
                             <td>{{ producto.nombre }}</td>
                             <td>{{ producto.descripcion }}</td>
                             <td>{{ producto.precio }}</td>
+                            {% if user.tipo == 1 %}
                             <td>{{ producto.cantidad }}</td>
+                            {% endif %}
                             <td>{{ producto.oferta }}</td>
                             <td>{{ producto.marca }}</td>
+                            {% if user.tipo == 2 %}
+                            <td>
+                                {% if producto.exists_valoracion %}
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-producto-{{ producto.id }}">Editar</button>
+                                {% else %}
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-producto-{{ producto.id }}">Añadir</button>
+                                {% endif %}
+                            </td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -51,6 +67,39 @@
     </div>
 </div>
 <!-- /.row -->
+
+{% if user.tipo == 2 %}
+<!-- Modales de las Valoraciones -->
+{% for producto in productos %}
+<div class="modal fade" id="modal-producto-{{ producto.id }}">
+    <div class="modal-dialog" style="max-width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Valoración para el producto #{{ producto.id }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+               <form action="" method="post">
+                   {% csrf_token %}
+
+                   {{ producto.form_valoracion | crispy }}
+
+                   <button type="submit" class="btn btn-primary">Guardar</button>
+                   <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+               </form>
+            </div>
+            <!--<div class="modal-footer justify-content-between">
+                <button type="reset" class="btn btn-danger" data-dismiss="modal">Volver</button>
+            </div>-->
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+{% endfor %}
+{% endif %}
 
 {% endblock %}
 

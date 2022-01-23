@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Datos Personales -->
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">Pagar Pedido #{{ pedido.id }}</h3>
+            </div>
+            <div class="card-body">
+                <form action="" method="post">
+                        {% csrf_token %}
+
+                        {{ pay_form | crispy }}
+
+                        <p><strong>Total: </strong>{{ pedido.get_total }}€</p>
+
+                        <button class="btn btn-primary btn-lg btn-block mt-3" type="submit" style="width: 20%; margin-left: 40%;">Pagar</button>
+                </form>
+                <a href="/orders" ><button class="btn btn-danger btn-lg btn-block mt-3" style="width: 20%; margin-left: 40%;">Volver</button></a>
+            </div>
+        </div><!-- /.card -->
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}

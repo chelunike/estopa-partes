@@ -1,0 +1,123 @@
+{% extends 'dashboard/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Datos Personales -->
+        <div class="card card-primary card-outline">
+
+            <div class="card-header">
+                <h3 class="card-title">Tabla de pedidos</h3>
+            </div>
+              
+            <!-- /.card-header -->
+            <div class="card-body">
+                <table id="pedidos" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Stock</th>
+                            <th>Cantidad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for pedido in pedidos %}
+                        <tr>
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ pedido.id }}">
+                                <td>{{ pedido.idPedido.id }}</td>
+                                <td><img src="/assets/{{ pedido.idProducto.imagen }}" width="130px" alt="{{ pedido.idProducto.nombre }}"></td>
+                                <td>{{ pedido.idProducto.nombre }}</td>
+                                <td>{{ pedido.idProducto.cantidad }}</td>
+                                <td>{{ pedido.cantidad }}</td>
+                                <td>
+                                    {% if pedido.estado == 0 %}
+                                    <span class="badge badge-danger"> <i class="far fa-clock"></i> Pendiente</span>
+                                    {% elif pedido.estado == 1 %}
+                                    <span class="badge badge-warning">Confirmado</span>
+                                    {% elif pedido.estado == 2 %}
+                                    <span class="badge badge-success">Pagado</span>
+                                    {% elif pedido.estado == 3 %}
+                                    <span class="badge badge-info">Enviado</span>
+                                    {% else %}
+                                    <span class="badge badge-success">Recibido</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if pedido.estado == 0 %}
+                                        {% if pedido.idProducto.cantidad >= pedido.cantidad %}
+                                        <button type="submit" name="action" value="confirm" class="btn btn-info" >Confirmar</button>
+                                        {% else %}
+                                        <span class="badge badge-danger">Sin Stock</span><br>
+                                        <button type="submit" name="action" value="cancel" class="btn btn-danger" >Cancelar</button><br>
+                                        o<br>
+                                        <a href="/products" class="btn btn-danger" >Agregar Stock</a>
+                                        {% endif %}
+                                    {% elif pedido.estado == 1 %}
+                                    <span class="badge badge-warning">Esperando Pago</span>
+                                    {% elif pedido.estado == 2 %}
+                                    <button type="submit" name="action" value="send" class="btn btn-success" >Enviar</button>
+                                    {% endif %}
+                                </td>
+                            </form>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div id="buttons"></div>
+            </div>
+            <!-- /.card-body -->
+        </div><!-- /.card -->
+    </div>
+</div>
+<!-- /.row -->
+
+{% endblock %}
+
+
+{% block head %}
+<!-- DataTables -->
+<link rel="stylesheet" href="/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="/assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+{% endblock %}
+
+
+{% block scripts %}
+<!-- DataTables  & Plugins -->
+<script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="/assets/plugins/jszip/jszip.min.js"></script>
+<script src="/assets/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="/assets/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="/assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script>
+    $(function () {
+        // Script for main table
+        $("#pedidos").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": true, "paging": true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#buttons');
+
+        {% for pedido in pedidos %}
+        $("#productos-{{ pedido.id }}").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": true, "paging": true,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#buttons-{{ pedido.id }}');
+        {% endfor %}
+    });
+</script>
+{% endblock %}

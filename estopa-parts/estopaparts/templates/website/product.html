@@ -1,15 +1,28 @@
 
 {% extends 'website/base.html' %}
-
+{% block header %}
+<link href="/assets/css/css.css" rel="stylesheet">
+{% endblock %}
 {% block body %}
 
 <div class="row d-flex justify-content-center align-items-center mt-5">
     <div class="col-md-6">
-        <img src="/assets/{{ producto.imagen }}" class="img-fluid img-thumbnail mx-auto d-block" alt="{{ producto.nombre }}" style="width: 530px;">
+        {% if producto.cantidad > 0 %}
+            <img src="/assets/{{ producto.imagen }}" class="img-fluid img-thumbnail mx-auto d-block" alt="{{ producto.nombre }}" style="width: 530px;">
+        {% else %}
+            <img src="/assets/{{ producto.imagen }}" class="img-fluid img-thumbnail mx-auto d-block grayimage" alt="{{ producto.nombre }}" style="width: 530px;">
+        {% endif %}
+        
     </div>
 
     <div class="col-md-6">
         <h3 class="mb-5">{{ producto.nombre }}</h3>
+        {% if producto.cantidad > 0 %}
+        <h5 class="text-success">Disponible</h5>
+        {% else %}
+        <h5 class="text-danger">Temporalmente fuera de stock</h5>
+        {% endif %}
+        
         <hr>
         <p>{{ producto.descripcion }}</p>
         <p><strong>Marca: </strong>{{ producto.marca }}</p>
@@ -28,10 +41,86 @@
             {% if producto.id in ids %}
             <button class="btn btn-danger btn-lg btn-block" type="submit" name="action" value="delete">Quitar del carrito</button>
             {% else %}
-            <button class="btn btn-info btn-lg btn-block" type="submit" name="action" value="insert">Añadir al carrito</button>
+                {% if producto.cantidad > 0 %}
+                <button class="btn btn-primary btn-lg btn-block" type="submit" name="action" value="insert">Añadir al carrito</button>
+                {% else %}
+                <button class="btn btn-primary btn-lg btn-block" disabled type="submit" name="action" value="insert">Añadir al carrito</button>
+                {% endif %}
+            
             {% endif %}
         </form>
     </div>
 </div>
+<hr>
+<div class="row d-flex justify-content-center align-items-center mt-5">
+    <div class="col-md-12 d-flex justify-content-center align-items-center">
+        <h3 class="mb-5">Comentarios y valoraciones</h3>
+        <hr>
+    </div>
+    <div class="col-md-12 d-flex justify-content-center align-items-center">
+        <h3 class="mb-5">
+            {% for e in estrellas %}
+                {% if e == 'a' %}
+                    <i class="fas fa-star text-warning"></i>
+                {% elif e == 'b' %}
+                    <i class="fas fa-star-half-alt text-warning"></i>
+                {% elif e == 'c' %}
+                    <i class="far fa-star text-warning"></i>  
+                {% else %}
+                    <i class="far fa-star text-warning"></i>   
+                {% endif %}
+            {% endfor %}
+        </h3>
+        <hr>
+    </div>
 
+    {% for valoracion in comments %}
+    <div class="col-md-6">
+        <div class="row mb-3">
+            <div class="col-1">
+                {% if valoracion.idComprador.imagen == NULL %}
+                    <img src="/assets/img/user.jpeg" class="card-img " alt="Foto de perfil">
+                {% else %}
+                    <img src="/assets/{{valoracion.idComprador.imagen}}" class="card-img " alt="Foto de perfil">
+                {% endif %}
+                
+            </div>
+            <div class="col-11">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="float-left">{{valoracion.titulo}}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="float-right">
+                                    {% for e in valoracion.getEstrellas %}
+                                        {% if e == 'a' %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% elif e == 'b' %}
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        {% elif e == 'c' %}
+                                            <i class="far fa-star text-warning"></i>  
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>   
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="card-body">
+                      <blockquote class="blockquote mb-0">
+                        <p>{{valoracion.comentario}}</p>
+                        <footer class="blockquote-footer"><cite title="Autor">{{valoracion.idComprador.nombre}} {{valoracion.idComprador.apellidos}}</cite></footer>
+                      </blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

@@ -33,14 +33,20 @@ urlpatterns = [
 
     # Listado de pedidos
     path('orders/', views.orders, name='orders'),
+    path('products/orders/', views.orders_seller, name='orders-seller'),
+    path('order/pay/<int:id>', views.pay_order, name='pay-order'),
     path('order/remove/<int:id>', views.order_remove, name='order-remove'),
     path('order/<int:order_id>/remove/<int:product_id>', views.order_remove_product, name='order-remove-product'),
     
-    # Vistas del wesite
+    # Vistas del website
     path('mostrarProductos', views.productos, name='mostrarProductos'),
     path('carrito', views.carrito, name='carrito'),
     path('tramitar', views.tramitar, name='tramitar'),
-    path('compra', views.compra, name='compra')
+    path('compra', views.compra, name='compra'),
+    
+    # Vista de administrador
+    path('valoraciones/', views.gestionValoraciones, name='valoraciones'),
+    path('usuarios/', views.gestionUsuarios, name='usuarios')
 ]
 
 

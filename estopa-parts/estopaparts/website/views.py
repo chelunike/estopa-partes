@@ -1,5 +1,7 @@
 from errno import EMLINK
 import imp
+from math import prod
+from mimetypes import init
 import re
 
 import datetime
@@ -22,7 +24,6 @@ def check_login(level):
             return func(request, *args, **kwargs)
         return wrapper
     return inner
-
 
 
 def session(func):
@@ -50,6 +51,7 @@ def login(request):
             
             if check_password(request.POST['clave'], usuario.clave):
                 request.session['user'] = model_to_dict(usuario)
+                request.session['user']['imagen'] = str(usuario.imagen)
                 request.session['noty'] = [{'type': 'success', 'msg': 'Login completado con exito.'}]
                 return redirect('dashboard')
         except Exception as e:
@@ -70,7 +72,7 @@ def logout(request):
 
 @session
 def register(request):
-    form = RegisterForm(request.POST or None)
+    form = RegisterForm(request.POST or None, request.FILES or None)
     data = {
         'title': 'Registro',
         'form': form,
@@ -83,10 +85,11 @@ def register(request):
             form.cleaned_data['clave'] = make_password(form.cleaned_data['clave'])
             clean_data = form.cleaned_data
             record = Usuario.objects.create(**clean_data)
-            if record.tipo == 1:
-                Vendedor.objects.create(id_usuario=record.id)
-            elif record.tipo == 2:
-                Comprador.objects.create(id_usuario=record.id)
+            # Funcionabilidad que la hace el trigger
+            #if record.tipo == 1:
+            #    Vendedor.objects.create(id_usuario=record.id)
+            #elif record.tipo == 2:
+            #    Comprador.objects.create(id_usuario=record.id)
             request.session['noty'] = [{'type': 'success', 'msg': 'Registro completado con exito.'}]
             return redirect('login')
         else:
@@ -107,8 +110,6 @@ def productos(request):
         articulos+=1
     minPrice=Producto.objects.raw('SELECT * FROM website_producto ORDER BY precio ASC limit 1;')[0]
     maxPrice=Producto.objects.raw('SELECT * FROM website_producto ORDER BY precio DESC limit 1;')[0]
-    print(minPrice.precio)
-    print(maxPrice.precio)
     data = {
         'productos': Producto.objects.all(),
         "carrito": request.session['carrito'],
@@ -119,7 +120,9 @@ def productos(request):
         "maxPrice": maxPrice.precio,
         "limInf":minPrice.precio,
         "limSup":maxPrice.precio,
-        "marcas":list(Producto.objects.all().values_list('marca', flat=True).distinct())
+        "marcas":list(Producto.objects.all().values_list('marca', flat=True).distinct()),
+        "vendedores":list(Producto.objects.all().values_list('vendedor_id', flat=True).distinct()),
+        "nombreVendedores":list(Usuario.objects.all().values_list('id','nombre').order_by('id'))
 
     }
     if request.method == 'POST':
@@ -146,10 +149,20 @@ def productos(request):
             data['limSup']=request.POST['precioMax']
             request.session.modified = True
         if value=='filtrarMarca':
-            data['productos']=Producto.objects.raw("SELECT * FROM website_producto WHERE precio BETWEEN "+ request.POST['precioMin'] +" AND "+ request.POST['precioMax']+";")
-            data['limInf']=request.POST['precioMin']
-            data['limSup']=request.POST['precioMax']
-            request.session.modified = True
+            if request.POST['selectMarcas']!="":
+                data['productos']=Producto.objects.raw("SELECT * FROM website_producto WHERE marca='"+ request.POST['selectMarcas'] +"';")
+                request.session.modified = True
+            else:
+                data['productos']=Producto.objects.all()
+        if value=='filtrarVendedor':
+            if request.POST['selectVendedor']!="":
+                data['productos']=Producto.objects.raw("SELECT * FROM website_producto WHERE vendedor_id='"+ request.POST['selectVendedor'] +"';")
+                request.session.modified = True
+            else:
+                data['productos']=Producto.objects.all()
+        if value=='ofertas':
+            data['productos']=Producto.objects.raw("SELECT * FROM website_producto WHERE oferta>'0';")
+
     for p in request.session['carrito']:
         id.append(p['id'])
     
@@ -191,7 +204,6 @@ def compra(request):
         value=request.POST['submit']
         if value=="solo":
             producto =  Producto.objects.get(pk=request.POST['id'])
-            print(producto)
             total += producto.precio
             final += producto.getPrecio()
             cantidad=request.POST['cantidad_'+str(request.POST['id'])]
@@ -252,8 +264,25 @@ def tramitar(request):
 @check_login(2)
 @session
 def dashboard(request):
+    valores=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    year=2022
+    if request.method == 'POST':
+         if request.POST['submit'] == 'cambiarYear':
+            year=request.POST['year']
+    for p in Pedido.objects.filter(fechaCompra__year=year):
+        valores[p.getMes()-1] += 1
+    
+    # Obtener los años de los Pedidos
+    years = []
+    for p in Pedido.objects.all():
+        if p.fechaCompra.year not in years:
+            years.append(p.fechaCompra.year)
+    
     data = {
         'title': 'Panel de control',
+        'meses': ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio','Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        'valores': valores,
+        'years':years,
         'noty': request.session['noty'],
         'user': request.session['user']
     }
@@ -262,7 +291,7 @@ def dashboard(request):
 @check_login(2)
 @session
 def profile(request):
-    profile_form = ProfileForm(request.POST or None, instance=Usuario.objects.get(pk=request.session['user']['id']))
+    profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=Usuario.objects.get(pk=request.session['user']['id']))
     passwd_form = PasswordForm(request.POST or None)
     email_form = EmailForm(request.POST or None)
 
@@ -270,7 +299,10 @@ def profile(request):
         if profile_form.is_valid(): # -- -- Datos del Usuario -- --
             profile_form.save()
             request.session['noty'] = [{'type': 'success', 'msg': 'Datos actualizados con exito.'}]
-            request.session['user'].update(profile_form.cleaned_data)
+            user = Usuario.objects.get(pk=request.session['user']['id'])
+            user_dict = model_to_dict(user)
+            user_dict['imagen'] = str(user.imagen)
+            request.session['user'] = user_dict
             request.session.modified = True
         elif passwd_form.is_valid(): # -- -- Contraseña -- --
             usuario = Usuario.objects.get(pk=request.session['user']['id'])
@@ -315,7 +347,10 @@ def product_seller(request):
         else:
             request.session['noty'] = [{'type': 'error', 'msg': 'Error al crear el producto.'}]
     
-    products = Producto.objects.filter(vendedor=request.session['user']['id'])
+    if request.session['user']['tipo'] == 1:
+        products = Producto.objects.filter(vendedor=request.session['user']['id'])
+    else:
+        products = Producto.objects.all()
     data = {
         'title': 'Mis Productos',
         'noty': request.session['noty'],
@@ -358,6 +393,19 @@ def product_remove(request, id):
 @check_login(2)
 @session
 def products_list(request):
+    form = ValoracionForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        valor = Valoracion.objects.filter(idProducto=form.cleaned_data['idProducto_id'], idComprador=request.session['user']['id'])
+        
+        if valor.count() > 0:
+            ValoracionForm(request.POST, instance=valor.first()).save()
+        else:
+            print(form.cleaned_data)
+            nueva = Valoracion.objects.create(**form.cleaned_data)
+        request.session['noty'] = [{'type': 'success', 'msg': 'Valoracion creada con exito.'}]
+        if form.errors:
+            request.session['noty'] = [{'type': 'error', 'msg': 'Error al crear la valoracion.'}]
+
     if request.session['user']['tipo'] == 1:
         title = 'Productos vendidos'
         products = Producto.objects.raw('SELECT * FROM website_producto '+
@@ -365,8 +413,35 @@ def products_list(request):
          [request.session['user']['id']])
     elif request.session['user']['tipo'] == 2:
         title = 'Productos Comprados'
-        products = Producto.objects.raw('SELECT * FROM website_producto as prod, website_pedido as ped, website_productospedido as pp '+
+        products = []
+        products_obj = Producto.objects.raw('SELECT * FROM website_producto as prod, website_pedido as ped, website_productospedido as pp '+
             'WHERE prod.id = pp.idProducto_id and ped.id = pp.idPedido_id and ped.idComprador_id = %s;', [request.session['user']['id']])
+        ids = []
+        for product in products_obj:
+            if product.id in ids:
+                continue
+            else:
+                ids.append(product.id)
+            product_data = model_to_dict(product)
+            product_data['vendedor'] = model_to_dict(product.vendedor)
+            product_data['valoracion_media'] = product.calcularMedia()
+            product_data['form_valoracion'] = ValoracionForm(request.POST or None, initial={
+                    'idProducto_id': product.id,
+                    'idComprador_id': request.session['user']['id']
+                })
+            product_data['exist_valoracion'] = False
+            try:
+                val = Valoracion.objects.get(idProducto=product.id, idComprador=request.session['user']['id'])
+                product_data['valoracion'] = val
+                print(product_data['valoracion'])
+                product_data['form_valoracion'] = ValoracionForm(instance=product_data['valoracion'], initial={
+                    'idProducto_id': product.id,
+                    'idComprador_id': request.session['user']['id']
+                })
+                product_data['exists_valoracion'] = True
+            except:
+                print('No se encontro valoracion')
+            products.append(product_data)
 
     data = {
         'title': title,
@@ -378,7 +453,7 @@ def products_list(request):
 
 @session
 def product_single(request, id):
-
+    
     if request.method == 'POST' and 'id' in request.POST and 'action' in request.POST:
         if request.POST['action'] == 'insert':
             producto =  model_to_dict(Producto.objects.get(pk=request.POST['id']))
@@ -397,11 +472,22 @@ def product_single(request, id):
     for p in request.session['carrito']:
         ids.append(p['id'])
 
+    valoracion = Producto.objects.get(pk=id).calcularMedia()
+    estrellas = 'a'*int(valoracion//2)
+    if valoracion % 2 != 0:
+        estrellas += 'b'
+    else:
+        estrellas += 'c'
+    estrellas += 'c'*int(4-valoracion//2)
+        
     data = {
         'title': 'Producto',
         'noty': request.session['noty'],
         'producto': Producto.objects.get(pk=id),
         'ids': ids,
+        'comments': Valoracion.objects.raw("SELECT * FROM website_valoracion WHERE idProducto_id='"+ str(id) +"';"),
+        'valoracionTotal': valoracion,
+        'estrellas': estrellas
     }
 
     return render(request, 'website/product.html', data)
@@ -409,6 +495,8 @@ def product_single(request, id):
 @check_login(2)
 @session
 def orders(request):
+    if request.session['user']['tipo'] == 1:
+        return redirect('orders-seller')
     if request.method == 'POST' and 'id' in request.POST and 'cantidad' in request.POST:
         try:
             linea = ProductosPedido.objects.get(pk=request.POST['id'])
@@ -447,6 +535,29 @@ def orders(request):
     }
     return render(request, 'dashboard/orders.html', data)
 
+@check_login(2)
+@session
+def pay_order(request, id):
+    if request.session['user']['tipo'] != 2:
+        return redirect('home')
+
+    pay_form = PayForm(request.POST or None)
+    pedido = Pedido.objects.get(pk=id)
+    if request.method == 'POST' and pay_form.is_valid():
+        for ped in ProductosPedido.objects.filter(idPedido_id=id):
+            ped.estado = 2
+            ped.save()
+        request.session['noty'] = [{'type': 'success', 'msg': 'Pedido pagado con exito.'}]
+        return redirect('orders')
+
+    data = {
+        'title': 'Pagar Pedido',
+        'noty': request.session['noty'],
+        'user': request.session['user'],
+        'pay_form': pay_form,
+        'pedido': pedido,
+    }
+    return render(request, 'dashboard/pay-order.html', data)
 
 @check_login(2)
 def order_remove(request, id):
@@ -473,5 +584,76 @@ def order_remove_product(request, order_id, product_id):
     except:
         request.session['noty'] = [{'type': 'error', 'msg': 'Error al eliminar el Producto del pedido.'}]
     return redirect('orders')
+
+@check_login(1)
+@session
+def orders_seller(request):
+    if request.method == 'POST' and 'id' in request.POST and 'action' in request.POST:
+        try:
+            ped =  ProductosPedido.objects.get(pk=request.POST['id'])
+            pro = Producto.objects.get(pk=ped.idProducto_id)
+            if request.POST['action'] == 'confirm' and ped.estado == 0 and pro.cantidad >= ped.cantidad:
+                ped.estado = 1
+                # Funcionabilidad implementada en el trigger
+                #pro.cantidad -= ped.cantidad
+                #pro.save()
+                ped.save()
+                request.session['noty'] = [{'type': 'success', 'msg': 'Pedido confirmado con exito.'}]
+            elif request.POST['action'] == 'send' and ped.estado == 2:
+                ped.estado = 4
+                ped.save()
+                request.session['noty'] = [{'type': 'success', 'msg': 'Pedido enviado con exito.'}]
+            elif request.POST['action'] == 'cancel' and ped.estado == 0:
+                if ProductosPedido.objects.filter(idPedido=ped.idPedido_id, estado=0).count() == 1:
+                    pedido = Pedido.objects.get(pk=ped.idPedido_id)
+                    pedido.delete()
+                ped.delete()
+                request.session['noty'] = [{'type': 'success', 'msg': 'Pedido enviado con exito.'}]
+            else:
+                request.session['noty'] = [{'type': 'error', 'msg': 'Error al procesar el pedido.'}]
+        except:
+            request.session['noty'] = [{'type': 'error', 'msg': 'Error al procesar el pedido.'}] 
+    
+    products = ProductosPedido.objects.raw('SELECT * FROM website_productospedido as pp, website_producto as prod '+
+        'WHERE pp.estado < 3 and pp.idProducto_id = prod.id and prod.vendedor_id  = %s;', [request.session['user']['id']])
+    
+    data = {
+        'title': 'Productos Pedidos',
+        'noty': request.session['noty'],
+        'user': request.session['user'],
+        'pedidos': products,
+    }
+    return render(request, 'dashboard/orders-seller.html', data)
+
+@check_login(0)
+@session
+def gestionValoraciones(request):
+    if request.method == 'POST':
+        if request.POST['submit'] == 'borrar':
+            Valoracion.objects.get(pk=request.POST['id']).delete()
+    data = {
+        'title': 'Gestion Valoraciones',
+        'noty': request.session['noty'],
+        'user': request.session['user'],
+        'valoraciones': Valoracion.objects.all()
+    }
+    return render(request, 'dashboard/adminValoracion.html', data)
+
+@check_login(0)
+@session
+def gestionUsuarios(request):
+    if request.method == 'POST':
+        if request.POST['submit'] == 'borrar':
+            user = Usuario.objects.get(pk=request.POST['id'])
+            user.delete()
+            #user.clave = ""
+            #user.save()
+    data = {
+        'title': 'Gestion Usuarios',
+        'noty': request.session['noty'],
+        'user': request.session['user'],
+        'usuarios': Usuario.objects.all()
+    }
+    return render(request, 'dashboard/adminUser.html', data)
 
 

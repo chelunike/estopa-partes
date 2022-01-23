@@ -1,6 +1,52 @@
 {% extends 'dashboard/base.html' %}
-
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js" integrity="sha256-Y26AMvaIfrZ1EQU49pf6H4QzVTrOI8m9wQYKkftBt4s=" crossorigin="anonymous"></script>
+<script>
+    const ctx = document.getElementById('ventasMes').getContext('2d'); 
+    const myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{meses|safe}},
+            datasets: [{
+                label: '# of Votes',
+                data: {{valores|safe}},
+                backgroundColor: [
+                    'rgba(255,0,0, 0.2)',
+                    'rgba(154,179,0, 0.2)',
+                    'rgba(0,0,255, 0.2)',
+                    'rgba(115,8,165, 0.2)',
+                    'rgba(254,179,0, 0.2)',
+                    'rgba(255,255,0, 0.2)',
+                    'rgba(186,0,255, 0.2)',
+                    'rgba(0,255,0, 0.2)',
+                    'rgba(59, 187, 130, 0.2)',
+                    'rgba(91, 148, 136, 0.2)',
+                    'rgba(111, 153, 27, 0.2)',
+                    'rgba(91, 42, 37, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,0,0, 1)',
+                    'rgba(154,179,0, 1)',
+                    'rgba(0,0,255, 1)',
+                    'rgba(115,8,165, 1)',
+                    'rgba(254,179,0, 1)',
+                    'rgba(255,255,0, 1)',
+                    'rgba(186,0,255, 1)',
+                    'rgba(0,255,0, 1)',
+                    'rgba(59, 187, 130, 1)',
+                    'rgba(91, 148, 136, 1)',    
+                    'rgba(111, 153, 27, 1)',
+                    'rgba(91, 42, 37, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        
+    });
+    </script>
+{% endblock %}
 {% block content %}
+
 <div class="row">
     
     <div class="col-md-12">
@@ -21,15 +67,15 @@
     <!-- Productos por atenerder -->
     <div class="card">
         <div class="card-body">
-        <h5 class="card-title">Card title</h5>
+        <h5 class="card-title">Pedidos por año y mes</h5>
 
         <p class="card-text">
-            Some quick example text to build on the card title and make up the bulk of the card's
-            content.
+            <canvas id="ventasMes" width="400" height="100">
+                
+            </canvas>
         </p>
 
-        <a href="#" class="card-link">Card link</a>
-        <a href="#" class="card-link">Another link</a>
+        
         </div>
     </div>
 
@@ -40,13 +86,23 @@
     
     <div class="card">
         <div class="card-header">
-        <h5 class="m-0">Featured</h5>
+        <h5 class="m-0">Seleccionar año</h5>
         </div>
         <div class="card-body">
-        <h6 class="card-title">Special title treatment</h6>
-
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+            <form action="" method='POST' class="mt-3">
+                {% csrf_token %}
+                <select id="year" name="year" class="selectpicker" >
+                    {% for y in years %}
+                        {% if y == year %}
+                            <option selected value="{{y}}">{{y}}</option>
+                        {% else %}
+                            <option selected value="{{y}}">{{y}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" type="submit" name="submit" value="cambiarYear">Cambiar año</button>
+              </form>
+            
         </div>
     </div>
 

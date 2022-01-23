@@ -10,7 +10,7 @@
             <div class="card-body">
                 <h5 class="card-title">Editar Mi Perfil</h5>
                 <hr>
-                <form action="" method="post">
+                <form action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
                         {{ profile_form | crispy }}

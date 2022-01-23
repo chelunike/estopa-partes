@@ -9,44 +9,38 @@
         <div class="card card-primary card-outline">
 
             <div class="card-header">
-                <h3 class="card-title">Tabla de Productos</h3>
+                <h3 class="card-title">{{ title }}</h3>
             </div>
               
             <!-- /.card-header -->
             <div class="card-body">
-                {% if user.tipo == 1 %}
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-insert">Instertar Producto</button>
-                {% endif %}
                 <table id="productos" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Imagen</th>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Oferta</th>
-                            <th>Marca</th>
+                            <th>ID(Producto)</th>
+                            <th>ID(Comprador)</th>
+                            <th>Titulo</th>
+                            <th>Comentario</th>
+                            <th>Valoracion</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for producto in productos %}
+                    {% for valoracion in valoraciones %}
                         <tr>
-                            <td>{{ producto.id }}</td>
-                            <td><img style="width: 100px;" src="/assets/{{producto.imagen}}" alt="{{producto.nombre}}"></td>
-                            <td>{{ producto.nombre }}</td>
-                            <td>{{ producto.descripcion }}</td>
-                            <td>{{ producto.precio }}</td>
-                            <td>{{ producto.cantidad }}</td>
-                            <td>{{ producto.oferta }}</td>
-                            <td>{{ producto.marca }}</td>
-                            <td class="text-center">
-                                {% if user.tipo == 1 %}
-                                <a href="/products/edit/{{ producto.id }}" class="btn btn-primary">Editar</a>
-                                {% endif %}
-                                <a href="/products/remove/{{ producto.id }}" class="btn btn-danger mt-1">Eliminar</a>
+                            <td>{{ valoracion.id }}</td>
+                            <td><a class="nav-link" style="color:black;" href="/product/{{ valoracion.idProducto.id }}">{{ valoracion.idProducto.id }} - {{ valoracion.idProducto.nombre }}</a></td>
+                            <td><a class="nav-link" style="color:black;" href="/usuario/{{ valoracion.idComprador.id }}">{{ valoracion.idComprador.id }} - {{ valoracion.idComprador.nombre }}</a></td>
+                            <td>{{ valoracion.titulo }}</td>
+                            <td>{{ valoracion.comentario }}</td>
+                            <td>{{ valoracion.valoracion }}</td>
+                            <td>
+                                <form action="{% url 'valoraciones' %}" method='POST'>
+                                    {% csrf_token %}
+                                    <input type="hidden"  id="id" name="id" value="{{ valoracion.id }}"/>
+                                    <button type="submit"  name="submit" value="borrar" class="btn btn-danger btn-block "><i class="fas fa-times"></i></button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
@@ -62,31 +56,6 @@
 </div>
 <!-- /.row -->
 
-<div class="modal fade" id="modal-insert">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form actioin="" method="post" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h4 class="modal-title">Insertar Nuevo Producto</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    {% csrf_token %}
-
-                    {{ product_form | crispy }}
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="reset" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Añadir</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
 
 {% endblock %}
 

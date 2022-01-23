@@ -14,7 +14,6 @@
               
             <!-- /.card-header -->
             <div class="card-body">
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-insert">Instertar Producto</button>
                 <table id="pedidos" class="table table-bordered table-hover">
                     <thead>
                         <tr>
@@ -36,6 +35,9 @@
                                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-pedido-{{ pedido.id }}">Ver Pedido</button>
                                 {% if pedido.max_estado < 1 %}
                                 <a href="/order/remove/{{ pedido.id }}" class="btn btn-danger">Cancelar Pedido</a>
+                                {% endif %}
+                                {% if pedido.min_estado == 1 %}
+                                <a href="/order/pay/{{ pedido.id }}" class="btn btn-primary">Pagar Pedido</a>
                                 {% endif %}
                             </td>
                         </tr>
